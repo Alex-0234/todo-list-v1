@@ -1,0 +1,277 @@
+@import url(https://fonts.googleapis.com/css?family=Poppins:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic);
+/* ========================
+   1. Base / Resets
+   ======================== */
+:root {
+    --bg-color: #f18282;
+    --text-color: #82d7f1;
+    --primary-color: #de82f1;
+    --secondary-color: #8bf182;
+}
+
+/* ========================
+   2. Layout
+   ======================== */
+
+
+body {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+
+    font-family: 'Poppins', sans-serif, serif;
+
+    background-color: var(--bg-color);
+}
+header {
+    position: fixed;
+    height: 10%;
+    width: 100%;
+    background-color: var(--primary-color);
+}
+main {
+    height: 90%;
+    width: 100%;
+    flex-direction: column;
+    flex-wrap: wrap;
+    background-color: var(--secondary-color);
+}
+footer {
+    height: 10%;
+    width: 100%;
+    background-color: var(--primary-color);
+}
+
+
+
+/* ========================
+   3. Components
+   ======================== */
+
+.addTask {
+    height: 10%;
+    width: 70%;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+
+    border-radius: 1rem;
+    background-color: var(--text-color);
+}
+.addButton {
+    height: 4vh;
+    width: 10vw;
+    border-radius: 0.5rem;
+
+    cursor: pointer;
+}
+.setup {
+    position: absolute;
+    transform: translate(-5vw, -5vw);
+    height: auto;
+    width: 80%;
+    border-radius: 1rem;
+    display: grid;
+    grid-template-areas:"name name date date"
+                        "desc desc   .    . "
+                        "desc desc   .    . "
+                        "  .    .    .   btn";
+
+    background-color: aquamarine;
+}
+.close-setup {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+
+    cursor: pointer;
+}
+.close-setup-path {
+    fill: var(--primary-color);
+}
+.setup-row1 {
+    
+    
+    margin: 1.5rem;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 500;
+    
+    color: var(--text-color)
+}
+.setup-textarea {
+    grid-area: desc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 1.5rem;
+}
+.description {
+    height: 20rem;
+    width: 30rem;
+    overflow-y: auto;
+    resize: none;
+}
+.add-button-area {
+    grid-area: btn;
+    grid-row: 4; 
+    margin: 3rem;
+}
+.add-button {
+    height: 4rem;
+    width: 10rem;
+    border-radius: 0.4rem;
+    cursor: pointer;
+}
+
+.task-name {
+    height: 2rem;
+    width: 10rem;
+    border-radius: 0.4rem;
+    margin-left: 1rem;
+    display: flex;
+    background-color: #de82f1;
+}
+
+.taskList {
+    height: 40vh;
+    width: 70vw;
+    padding: 0.5rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(auto-fit, minmax(10vh, 1fr));
+
+    overflow-y: auto;
+
+    border-radius: 0.4rem;
+    background-color: var(--bg-color);
+}
+.task-closed {
+    justify-self: center;
+
+    height: 6vh;
+    width: 59.5vw;
+    margin: 0.5rem;
+    padding: 0.5rem;
+
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+
+    border-radius: 0.4rem;
+    background-color: aliceblue;
+}
+.small-wrapper {
+    height: 5vh;
+    width: auto;
+    padding: 0.2rem;
+    margin: 0.2rem; 
+}
+.task-open-button {
+    place-self: center;
+
+    height: 1.4rem;
+    width: 6rem;
+    margin-left: 1rem;
+}
+.checkbox {
+    place-self: center;
+    height: 3vw;
+    width: 3vw;
+    margin: 0.5rem;
+}
+.num {
+    align-self: center;
+    height: 1.4vw;
+    width: 3vw;
+    margin-left: 2rem;
+    border: none;
+}
+.task-open {
+    justify-self: center;
+
+    height: 14.5vh;
+    width: 59.5vw;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    grid-row: span 2;
+
+    display:flex;
+    justify-content: space-between;
+    align-items: start;
+
+    border-radius: 1rem;
+    background-color: aliceblue;
+}
+.delete-icon {
+    padding: 1vh;
+
+    cursor: pointer;
+}
+.del-option {
+    position: absolute;
+    right: 2vw;
+
+    height: 12vh;
+    width: 10vw;
+    margin: 0.5rem;
+    padding: 0.5rem;
+
+    display:flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+    border-radius: 0.4rem;
+    background-color: aliceblue;
+}
+.choice {
+    height: 1.5rem;
+    width:5rem;
+    margin: 0 0.5rem 0.5rem 0.5rem;
+}
+.textarea {
+    position: relative;
+    top: 8vh;
+    height: 3.1rem;
+    width: 27.5rem;
+    border-radius: 1rem;
+    justify-self: start;
+    resize: none;
+    overflow-y: auto;
+
+}
+/* ========================
+   4. Typography 
+   ======================== */
+
+
+
+
+/* ========================
+    5. Visuals / Animations 
+    ======================== */
+
+
+
+
+/* ========================
+   6. Utility 
+   ======================== */
+.center {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+.center-tasks {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-content: center;
+    flex-wrap: wrap;
+}
+.hidden {
+    visibility: hidden;
+}
