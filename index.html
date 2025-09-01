@@ -7,18 +7,44 @@
     </head>
     <body>
         <header>
+            <h1> To-do List </h1>
+            <nav>
+                <a id="daily" class="link" href="#dailyTasks">Daily tasks</a>
+                <hr>
+                <a id="longterm" class="link" href="#statusTasks">Longterm tasks</a>
+                <hr>
+                <a id="notes" class="link" href="#Notes">Notes</a>
+            </nav>
         </header>
         <main class="center">
-            <section class="addTask">
-                <button class="addButton"></button>
+            <section id="dailyTasks" class="checkList ofscreen-left">
+                <div class="wrapper">
+                <h2>Daily tasks:</h2>
+                <button class="add-button-check">ADD</button>
+                </div>
+                    <section class="check-list">
+                        <!-- Check tasks render here -->
+                    </section>
             </section>
-            <section class="taskList">
+            <section id="statusTasks" class="statusList onscreen-center">
+                <div class="wrapper">
+                <h2>Longterm tasks:</h2>
+                <button class="add-button-status">ADD</button>
+                </div>
+                    <section class="status-list">
+                        <!-- Status tasks render here -->
+                    </section>
             </section>
-
+            <section id="Notes" class="notes ofscreen-right">
+                <div class="wrapper">
+                <h2>Notes:</h2>
+                <button class="add-button-notes">ADD</button>
+                </div>
+                    <section class="notes-list">
+                        <!-- Notes render here -->
+                    </section>
+            </section>
         </main>
-        <footer>
-
-        </footer>
         <script src="script.js"></script>
     </body>
 </html> 

@@ -3,16 +3,19 @@
    1. Base / Resets
    ======================== */
 :root {
-    --bg-color: #f18282;
-    --text-color: #82d7f1;
-    --primary-color: #de82f1;
-    --secondary-color: #8bf182;
+    --bg-color: #0d0d0e;
+    --text-color: #EEEEFF;
+    --primary-color: #FFC100;
+    --secondary-color: #eeeeff10;
+
+    --fs-small: clamp(0.875rem, 2vw, 1.25rem);   
+    --fs-base: clamp(1rem, 2vw, 1.75rem);    
+    --fs-header: clamp(3.5rem, 8vw, 5.5rem);      
 }
 
 /* ========================
    2. Layout
    ======================== */
-
 
 body {
     height: 100vh;
@@ -22,106 +25,106 @@ body {
     font-family: 'Poppins', sans-serif, serif;
 
     background-color: var(--bg-color);
+    overflow: hidden;  /* <====================== This is currently fixing the layout */
 }
 header {
     position: fixed;
-    height: 10%;
+    height: 15%;
     width: 100%;
-    background-color: var(--primary-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+    background-color: rgba(0,0,0,0,0);
 }
 main {
-    height: 90%;
+    height: 82%;
     width: 100%;
-    flex-direction: column;
+    padding-top: 8%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     flex-wrap: wrap;
-    background-color: var(--secondary-color);
+   
+    background-color: rgba(0,0,0,0);
 }
-footer {
-    height: 10%;
-    width: 100%;
-    background-color: var(--primary-color);
-}
-
 
 
 /* ========================
    3. Components
    ======================== */
-
-.addTask {
-    height: 10%;
-    width: 70%;
-    margin-bottom: 0.5rem;
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-
-    border-radius: 1rem;
-    background-color: var(--text-color);
+nav {
+    height: 2.5rem;
+    width: auto;
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0.6rem;
+    background-color: var(--secondary-color);
 }
-.addButton {
-    height: 4vh;
-    width: 10vw;
-    border-radius: 0.5rem;
 
-    cursor: pointer;
-}
+
+/* setup layers */
+
 .setup {
     position: absolute;
-    transform: translate(-5vw, -5vw);
-    height: auto;
-    width: 80%;
-    border-radius: 1rem;
-    display: grid;
-    grid-template-areas:"name name date date"
-                        "desc desc   .    . "
-                        "desc desc   .    . "
-                        "  .    .    .   btn";
+    left: -1%;
+    bottom: 2%;
+    height: 80%;
+    width: 29%;
+    min-width: 300px;
+    border-top-right-radius: 0.4rem;
+    border-bottom-right-radius: 0.4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
 
-    background-color: aquamarine;
+    background-color: #2e2e2efb;
+
+}
+
+.setup-textarea {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    margin-left: 2rem;
+
 }
 .close-setup {
     position: absolute;
     top: 1rem;
     right: 1rem;
-
     cursor: pointer;
 }
-.close-setup-path {
-    fill: var(--primary-color);
-}
-.setup-row1 {
-    
-    
-    margin: 1.5rem;
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    font-size: 1.5rem;
-    font-weight: 500;
-    
-    color: var(--text-color)
-}
-.setup-textarea {
-    grid-area: desc;
+.name-input-wrapper {
+    margin-top: 3rem;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    font-size: 1.5rem;
 }
+
 .description {
-    height: 20rem;
-    width: 30rem;
+    height: 10rem;
+    width: 25rem;
     overflow-y: auto;
-    resize: none;
+    resize:vertical;
+    font-family: 'Poppins',sans-serif,serif;
 }
-.add-button-area {
-    grid-area: btn;
-    grid-row: 4; 
-    margin: 3rem;
+
+.add-button-check, .add-button-status, .add-button-notes {
+    height: 2.5rem;
+    width: 6rem;
+    margin-right: 1rem;
+    border-radius: 0.4rem;
+    cursor: pointer;
 }
 .add-button {
-    height: 4rem;
+    height: 2.5rem;
     width: 10rem;
+    margin-right: 1rem;
     border-radius: 0.4rem;
     cursor: pointer;
 }
@@ -131,85 +134,117 @@ footer {
     width: 10rem;
     border-radius: 0.4rem;
     margin-left: 1rem;
-    display: flex;
-    background-color: #de82f1;
+
 }
 
-.taskList {
-    height: 40vh;
-    width: 70vw;
+/* CHECK layers */
+.checkList {
+    min-width: 19rem;
+    margin-top: 20vh;
     padding: 0.5rem;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(auto-fit, minmax(10vh, 1fr));
-
-    overflow-y: auto;
-
+    grid-template-rows:4rem 1fr;
+    
+    border-radius: 0.4rem;
+    background-color: var(--secondary-color);
+}
+.wrapper {
+    height: 80%;
+    width: 99%;
+    margin: 0.2rem;
+    padding:0.1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     border-radius: 0.4rem;
     background-color: var(--bg-color);
 }
-.task-closed {
-    justify-self: center;
+.check-list {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(auto-fit, minmax(4.2rem, 1fr));
 
-    height: 6vh;
-    width: 59.5vw;
-    margin: 0.5rem;
+    overflow-y: auto;
+
+    background-color: rgba(0,0,0,0);
+}
+/* STATUS layers */
+.statusList {
+    min-width: 19rem;
+    margin-top: 20vh;
     padding: 0.5rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows:4rem 1fr;
+    
+    border-radius: 0.4rem;
+    background-color: var(--secondary-color);
+}
 
-    display:flex;
+.status-list {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(auto-fit, minmax(4.2rem, 1fr));
+
+    overflow-y: auto;
+
+    background-color: rgba(0,0,0,0);
+}
+.notes {
+    min-width: 19rem;
+    margin-top: 20vh;
+    padding: 0.5rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows:4rem 1fr;
+    
+    border-radius: 0.4rem;
+    background-color: var(--secondary-color);
+}
+
+.task {
+    height: 4rem;
+    margin-top:0.1rem;
+    margin-bottom: 0.1rem;
+    width: 100%;
+    border-radius: 0.4rem;
+    display: flex;
     justify-content: space-between;
     align-items: center;
 
-    border-radius: 0.4rem;
-    background-color: aliceblue;
+    background-color: var(--secondary-color);
 }
+.name-output {
+    border: none;
+    color: var(--text-color);
+    background-color: rgba(0,0,0,0);
+}
+
 .small-wrapper {
     height: 5vh;
     width: auto;
     padding: 0.2rem;
     margin: 0.2rem; 
 }
-.task-open-button {
-    place-self: center;
 
-    height: 1.4rem;
-    width: 6rem;
-    margin-left: 1rem;
-}
 .checkbox {
     place-self: center;
-    height: 3vw;
-    width: 3vw;
+    height: 2vw;
+    width: 2vw;
     margin: 0.5rem;
 }
-.num {
-    align-self: center;
-    height: 1.4vw;
-    width: 3vw;
-    margin-left: 2rem;
-    border: none;
-}
-.task-open {
-    justify-self: center;
 
-    height: 14.5vh;
-    width: 59.5vw;
-    margin: 0.5rem;
-    padding: 0.5rem;
-    grid-row: span 2;
-
-    display:flex;
-    justify-content: space-between;
-    align-items: start;
-
-    border-radius: 1rem;
-    background-color: aliceblue;
-}
 .delete-icon {
     padding: 1vh;
 
     cursor: pointer;
 }
+
 .del-option {
     position: absolute;
     right: 2vw;
@@ -227,25 +262,55 @@ footer {
     border-radius: 0.4rem;
     background-color: aliceblue;
 }
+
 .choice {
     height: 1.5rem;
     width:5rem;
     margin: 0 0.5rem 0.5rem 0.5rem;
 }
+
 .textarea {
-    position: relative;
-    top: 8vh;
-    height: 3.1rem;
-    width: 27.5rem;
-    border-radius: 1rem;
-    justify-self: start;
+    height: 50%;
+    width: 60%;
+    border-radius: 0.4rem;
+    text-wrap:none;
+
     resize: none;
     overflow-y: auto;
+    overflow-x: hidden;
 
 }
 /* ========================
    4. Typography 
    ======================== */
+
+label {
+    margin-left:1rem;
+    font-size: var(--fs-small);
+    color: var(--text-color);
+}
+h1 {
+    letter-spacing: clamp(0px, 0.6vw, 1rem);
+    margin:0;
+    padding-top: 1rem;
+    line-height:3.5rem;
+    font-weight: 700;
+    font-size: var(--fs-header);
+    color: var(--text-color)
+}
+
+a {
+    margin: 0.3rem;
+    padding: 0.5rem;
+    font-size: var(--fs-small);
+    color: var(--text-color);
+    text-decoration: none;
+}
+h2 {
+    margin-left:1rem;
+    font-size: var(--fs-base);
+    color: var(--text-color);
+}
 
 
 
@@ -274,4 +339,38 @@ footer {
 }
 .hidden {
     visibility: hidden;
+}
+.underline {
+    text-decoration: underline;
+    transition: all 0.3s cubic-bezier(0.4, 0, 1, 1);
+}
+.ofscreen-left {
+    position: absolute;
+    height: 60%;
+    width: 40%;
+    transform: translateX(-60vw);
+    opacity: 0.4;
+    transition: all 0.3s cubic-bezier(0.25, 0.1, 0, 1.15);
+}
+.ofscreen-right {
+    position: absolute;
+    height: 60%;
+    width: 40%;
+    transform: translateX(60vw);
+    opacity: 0.4;
+    transition: all 0.3s cubic-bezier(0.25, 0.1, 0, 1.15);
+}
+.onscreen-center {
+    position: unset;
+    height: 82%;
+    width: 40%;
+    transition: all 0.3s cubic-bezier(0.25, 0.1, 0, 1.15);
+}
+
+button {
+
+    border: solid 2px var(--bg-color);
+    font-family: 'Poppins',sans-serif;
+    font-size: var(--fs-small);
+    background-color: var(--primary-color);
 }
