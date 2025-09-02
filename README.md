@@ -8,6 +8,13 @@ Personal project focusing on classes and heavy javascript interactions.
 - Color-coded UI (custom palette)
 
 ## Version
+**v2.1 - 02.09.2025**
+- Added localStorage
+- Added a note add function.
+- Added a status task add function.
+- Daily tasks now stay checked after refreshing
+- Added a basic daily streak counter for daily tasks
+
 **v2.0 - 02.09.2025**
 - Complete redesign of layout and CSS
 - Added custom color palette
@@ -25,10 +32,13 @@ Personal project focusing on classes and heavy javascript interactions.
 - [X] Add task remove feature.
 - [X] Add different types of tasks / notes.
 - [X] Make a proper color palette.
-- [ ] Add localStorage.
-- [ ] Add status type task add function.
-- [ ] Add note add function.
-- [ ] ID changes.
+- [X] Add localStorage.
+- [X] Add status type task add function.
+- [X] Add note add function.
+- [X] ID changes.
+- [ ] Add status change popup window.
+- [ ] Redesign task setup window.
+- [ ] Review scaling on smaller devices / add media queries.
 - [ ] Add proper filtering.
 - [ ] Add more task input parameters.
 

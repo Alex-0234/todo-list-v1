@@ -1,14 +1,51 @@
 let dailyTasks = [];
 let statusTasks = [];
-let notes = [];
+let allNotes = [];
 
 let primaryColor = null;
 let secondaryColor = null;
 let bgColor = null;
 let textColor = null;
 
+function loadAll() {
+  const ONE_DAY = 24*60*60*1000;
+
+    const dailyRaw = JSON.parse(localStorage.getItem("dailyTasks") || "[]");
+    dailyTasks = dailyRaw.map(obj => new Task(
+      obj.name,
+      obj.description,
+      obj.type,
+      obj.id,
+      obj.status,
+      obj.streak
+    ));
+    dailyTasks.forEach(obj => {
+      if (Date.now() - obj.id > ONE_DAY) {
+        obj.status = "in-progress";
+        obj.streak++;
+    }
+    });
+    const statusRaw = JSON.parse(localStorage.getItem("statusTasks") || "[]");
+    statusTasks = statusRaw.map(obj => new Task(
+      obj.name,
+      obj.description,
+      obj.type,
+      obj.id,
+      obj.status
+    ));
+    const notesRaw = JSON.parse(localStorage.getItem("Notes") || "[]");
+    allNotes = notesRaw.map(obj => new Task(
+      obj.name,
+      obj.description,
+      obj.type,
+      obj.id,
+      obj.status
+    ));
+}
+
 document.addEventListener('DOMContentLoaded', ()=> {
   console.log('Inicialized');
+  history.replaceState(null, '', 'index.html');
 
   bgColor = getComputedStyle(document.body).getPropertyValue("--bg-color");
   textColor = getComputedStyle(document.body).getPropertyValue("--text-color");
@@ -25,17 +62,34 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
   const addButtonCheck = document.querySelector('.add-button-check');
   const addButtonStatus = document.querySelector('.add-button-status');
+  const addButtonNotes = document.querySelector('.add-button-notes');
+
+  const setupCont = document.querySelector('.setup');
+
+  loadAll();
 
   addButtonCheck.addEventListener('click', ()=> {
-    if (!document.querySelector('.setup')) {
-        const setup = new Setup('check'); // Change needed. If I click on addButon and other button setup is there it causes confusion..
-    }
+    if (setupCont) {
+      const cont = document.querySelector('main');
+      cont.removeChild(setupCont)
+    } 
+    const setup = new Setup('check'); 
   })
   addButtonStatus.addEventListener('click', ()=> {
-    if (!document.querySelector('.setup')) {
-        const setup = new Setup('status'); // Change needed. If I click on addButon and other button setup is there it causes confusion..
+    if (setupCont) {
+      const cont = document.querySelector('main');
+      cont.removeChild(setupCont)
     }
+    const setup = new Setup('status'); 
   })
+  addButtonNotes.addEventListener('click', ()=> {
+    if (setupCont) {
+      const cont = document.querySelector('main');
+      cont.removeChild(setupCont)
+    }
+    const task = new Task('note');
+  })
+
   nav1.addEventListener('click', (e)=> {
      e.preventDefault();
 
@@ -105,12 +159,12 @@ class Setup {
     this.setupWindow = document.createElement('div');
     this.setupWindow.classList.add('setup');
 
-      this.textareaWrapper = document.createElement('div');
-      this.textareaWrapper.classList.add('setup-textarea');
-      this.textareaLabel = document.createElement('label');
-      this.textareaLabel.innerHTML = "Describe your task:";
-      this.textarea = document.createElement('textarea');
-      this.textarea.classList.add('description');
+    this.textareaWrapper = document.createElement('div');
+    this.textareaWrapper.classList.add('setup-textarea');
+    this.textareaLabel = document.createElement('label');
+    this.textareaLabel.innerHTML = "Describe your task:";
+    this.textarea = document.createElement('textarea');
+    this.textarea.classList.add('description');
 
     this.nameInputWrapper = document.createElement('div');
     this.nameInputWrapper.classList.add('name-input-wrapper');
@@ -148,9 +202,9 @@ class Setup {
       this.button.addEventListener('click', ()=> {
         if (this.type === 'check') {
           const task = new Task(this.nameInput.value, this.textarea.value, 'check');
-        } else {
+        } else if (this.type === 'status') {
           const task = new Task(this.nameInput.value, this.textarea.value, 'status');
-        }
+        } 
         this.nameInput.value = "";
         this.textarea.value = "";
       })
@@ -174,44 +228,39 @@ class Task {
 
   static counter = 0;
 
-  constructor(name, description, type) {
+  constructor(name = 'empty', description = 'empty', type, id = Date.now(), status = "in-progress", streak = 0) {
 
     this.checkList = document.querySelector('.check-list');
     this.statusList = document.querySelector('.status-list');
+    this.notesList = document.querySelector('.notes-list');
 
-    this.id = Task.counter++; // Could add Date.now( ) id. 
+    this.id = id;
     this.name = name;
     this.description = description;
     this.type = type;
-
-    this.object = {
-      id: this.id,
-      name: this.name,
-      description: this.description,
-    }
+    this.status = status;
+    this.streak = streak
 
     this.task = document.createElement('div');
-    
-    this.smallWrapper = document.createElement('div');
-    this.smallWrapper.classList.add('small-wrapper');
-    this.smallWrapper.classList.add('center');
+    this.task.classList.add('task');
 
-    this.openTaskButton = document.createElement('button');
-    this.openTaskButton.classList.add('task-open-button');
-    this.openTaskButton.textContent = "See description";
-
+    this.checkbox = document.createElement('input');
+    this.checkbox.type = 'checkbox';
+    this.checkbox.classList.add('checkbox');
+ 
     this.nameOutput = document.createElement('input');
     this.nameOutput.classList.add('name-output')
     this.nameOutput.setAttribute('readonly', '');
     this.nameOutput.value = `${name}`;
 
-    this.checkbox = document.createElement('input');
-    this.checkbox.type = 'checkbox';
-    this.checkbox.classList.add('checkbox');
-
     this.textarea = document.createElement('textarea');
     this.textarea.classList.add('textarea');
     this.textarea.value = this.description;
+
+    this.progress = document.createElement('input');
+    this.progress.setAttribute('readonly', '');
+    this.progress.classList.add('status');
+    this.progress.value = `${this.status}`;
 
     this.deleteIcon = document.createElementNS("http://www.w3.org/2000/svg",'svg');
     this.deleteIcon.classList.add('delete-icon');
@@ -221,27 +270,96 @@ class Task {
     this.deleteIcon.setAttribute('width', '20px');
     this.deleteIcon.innerHTML = `<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12l1.41 1.41L13.41 14l2.12 2.12l-1.41 1.41L12 15.41l-2.12 2.12l-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/>`; 
 
-   
-
-
-    if (this.type === 'check') {
-      this.addCheckboxType();
-    } else if (this.type === 'status') {
-      this.addStatusType();
-    }
-
     this.init();
+    this.addTask();
   }
    // ======================================================
 
   init() {
 
     this.deleteIcon.addEventListener('click', ()=> {
-       this.uSureOption(this.taskList);
+      switch(this.type) {
+        case 'check':
+          this.uSureOption(this.checkList);
+          break;
+        case 'status':
+          this.uSureOption(this.statusList);
+          break;
+        case 'note':
+          this.uSureOption(this.notesList);
+          break;
+      }
+       
     })
+    this.checkbox.addEventListener('change', ()=> {
+      this.toggleCompleted();
+    })
+
+  }
+   // ======================================================
+    toJSON() {
+      return {
+        id: this.id,
+        name: this.name,
+        description: this.description,
+        status: this.status,
+        type: this.type,
+        streak: this.streak
+      };
+    }
+  // ======================================================
+   addCheckboxType() {
+    
+      this.task.appendChild(this.checkbox);
+      this.task.appendChild(this.nameOutput);
+      this.task.appendChild(document.createTextNode(`${this.streak}`));
+      this.task.appendChild(this.textarea);
+      this.task.appendChild(this.deleteIcon);
+      this.checkList.appendChild(this.task);
+
+      if (this.status === "completed") {
+        this.checkbox.checked = true; 
+      } else {
+        this.checkbox.checked = false; 
+}
+
+      dailyTasks.push(this.toJSON());
+      localStorage.setItem("dailyTasks", JSON.stringify(dailyTasks));
+   }
+   // ======================================================
+     addStatusType() {
+      this.task.appendChild(this.progress);
+      this.task.appendChild(this.textarea);
+      this.task.appendChild(this.deleteIcon);
+      this.statusList.appendChild(this.task);
+
+      statusTasks.push(this.toJSON());
+      localStorage.setItem("statusTasks", JSON.stringify(statusTasks));
+   }
+   // ======================================================
+    addNotes() {
+      this.task.appendChild(this.textarea);
+      this.task.appendChild(this.deleteIcon);
+      this.notesList.appendChild(this.task);
+
+      allNotes.push(this.toJSON());
+      localStorage.setItem("Notes", JSON.stringify(allNotes));
+
+    }
+  // ======================================================
+  addTask() {
+    if (this.type === "check") {
+      this.addCheckboxType();
+    
+    } else if (this.type === "status") {
+      this.addStatusType();
+
+    } else {
+      this.addNotes();
+    }
+    
   }
   // ======================================================
-
   uSureOption(parent) {
     
     this.window = document.createElement('div');
@@ -268,46 +386,38 @@ class Task {
       
     })
     this.unsure.addEventListener('click', ()=> {
-
-      this.task.removeChild(this.object);
+      this.task.removeChild(this.window);
     })
   }
    // ======================================================
-   addCheckboxType() {
-      this.task.classList.add('task');
-      this.task.appendChild(this.checkbox);
-      this.task.appendChild(this.nameOutput);
-      this.task.appendChild(this.textarea);
-      this.task.appendChild(this.deleteIcon);
-      this.checkList.appendChild(this.task);
-
-      dailyTasks.push(this.object);
-   }
-   // ======================================================
-     addStatusType() {
-      
-
-
-   }
-   // ======================================================
-  
-  addTask(type) {
-    if (type === 1) {
-      this.task.classList.add('checklist');
-      this.checkList.appendChild(this.task);
-    } else if (type === 2) {
-      this.statusList.appendChild(this.task);
-    }
-    
-  }
-  // ======================================================
   removeTask(parent) {
-    parent.removeChild(this.task);
-  }
-   // ======================================================
+  parent.removeChild(this.task);
 
+  if (parent === this.checkList) {
+    dailyTasks = dailyTasks.filter(task => task.id !== this.id);
+    localStorage.setItem("dailyTasks", JSON.stringify(dailyTasks));
+  }
+  else if (parent === this.statusList) {
+    statusTasks = statusTasks.filter(task => task.id !== this.id);
+    localStorage.setItem("statusTasks", JSON.stringify(statusTasks));
+  }
+  else {
+    allNotes = allNotes.filter(task => task.id !== this.id);
+    localStorage.setItem("Notes", JSON.stringify(allNotes));
+  }
+
+  }
+  
+   // ======================================================
   toggleCompleted() {
     this.task.classList.toggle('completed');
-    this.checkbox.checked = !this.checkbox.checked;
+    this.status = this.task.classList.contains('completed') 
+    ? "completed" 
+    : "in-progress";
+    dailyTasks = dailyTasks.map(task => 
+      task.id === this.id ? this.toJSON() : task
+    );
+    localStorage.setItem("dailyTasks", JSON.stringify(dailyTasks));
+    
   }
 }
