@@ -8,6 +8,9 @@ Personal project focusing on classes and heavy javascript interactions.
 - Color-coded UI (custom palette)
 
 ## Version
+**v2.2 - 04.09.2025**
+- Added a status toggle for the long-term tasks after clicking the current status.
+
 **v2.1 - 02.09.2025**
 - Added localStorage
 - Added a note add function.
@@ -28,19 +31,19 @@ Personal project focusing on classes and heavy javascript interactions.
 - JavaScript 
 
 ## Planned Features
-- [X] Finish basic layout.
-- [X] Add task remove feature.
-- [X] Add different types of tasks / notes.
-- [X] Make a proper color palette.
-- [X] Add localStorage.
-- [X] Add status type task add function.
-- [X] Add note add function.
-- [X] ID changes.
-- [ ] Add status change popup window.
-- [ ] Redesign task setup window.
-- [ ] Review scaling on smaller devices / add media queries.
-- [ ] Add proper filtering.
-- [ ] Add more task input parameters.
+- ✅ Finish basic layout.
+- ✅ Add task remove feature.
+- ✅ Add different types of tasks / notes.
+- ✅ Make a proper color palette.
+- ✅ Add localStorage.
+- ✅ Add status type task add function.
+- ✅ Add note add function.
+- ✅ ID changes.
+- ✅ Add status change toggle after clicking the current status.
+- ❌ Redesign task setup window.
+- ❌ Review scaling on smaller devices / add media queries.
+- ❌ Add proper filtering.
+- ❌ Add more task input parameters.
 
 
 ## Installation

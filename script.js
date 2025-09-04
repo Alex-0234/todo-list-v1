@@ -20,7 +20,7 @@ function loadAll() {
       obj.streak
     ));
     dailyTasks.forEach(obj => {
-      if (Date.now() - obj.id > ONE_DAY) {
+      if (Date.now() - obj.id > ONE_DAY && this.status === "completed") {
         obj.status = "in-progress";
         obj.streak++;
     }
@@ -239,7 +239,7 @@ class Task {
     this.description = description;
     this.type = type;
     this.status = status;
-    this.streak = streak
+    this.streak = streak;
 
     this.task = document.createElement('div');
     this.task.classList.add('task');
@@ -293,6 +293,10 @@ class Task {
     })
     this.checkbox.addEventListener('change', ()=> {
       this.toggleCompleted();
+    })
+    this.progress.addEventListener('click', (e)=> {
+      e.preventDefault();
+      const toggle = new progressWindow(this.task);
     })
 
   }
@@ -418,6 +422,20 @@ class Task {
       task.id === this.id ? this.toJSON() : task
     );
     localStorage.setItem("dailyTasks", JSON.stringify(dailyTasks));
-    
   }
+}
+class progressWindow {
+  constructor(task) {
+    this.container = task;
+    this.toggle(this.container);
+
+  }
+  toggle() {
+  const statuses = ['finished', 'in-progress', 'on-hold', 'review' ];
+
+  const currentIndex = statuses.indexOf(this.container.status);
+  const nextIndex = (currentIndex + 1) % statuses.length; // loops back to start
+  this.container.status = statuses[nextIndex];
+  this.container.querySelector('.status').value = `${this.container.status}`;
+}
 }
