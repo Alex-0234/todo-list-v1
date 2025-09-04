@@ -64,34 +64,41 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const addButtonStatus = document.querySelector('.add-button-status');
   const addButtonNotes = document.querySelector('.add-button-notes');
 
-  const setupCont = document.querySelector('.setup');
-
   loadAll();
 
   addButtonCheck.addEventListener('click', ()=> {
+    const setupCont = document.querySelector('.setup');
     if (setupCont) {
       const cont = document.querySelector('main');
-      cont.removeChild(setupCont)
+      cont.removeChild(setupCont);
     } 
     const setup = new Setup('check'); 
   })
   addButtonStatus.addEventListener('click', ()=> {
+    const setupCont = document.querySelector('.setup');
     if (setupCont) {
       const cont = document.querySelector('main');
-      cont.removeChild(setupCont)
+      cont.removeChild(setupCont);
     }
     const setup = new Setup('status'); 
   })
   addButtonNotes.addEventListener('click', ()=> {
+    const setupCont = document.querySelector('.setup');
     if (setupCont) {
       const cont = document.querySelector('main');
-      cont.removeChild(setupCont)
+      cont.removeChild(setupCont);
     }
     const task = new Task('note');
   })
 
   nav1.addEventListener('click', (e)=> {
      e.preventDefault();
+
+        const setupCont = document.querySelector('.setup');
+        if (setupCont) {
+          const cont = document.querySelector('main');
+          cont.removeChild(setupCont);
+        } 
 
      nav1.classList.add('underline');
      nav2.classList.remove('underline');
@@ -113,6 +120,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
   nav2.addEventListener('click', (e)=> {
      e.preventDefault();
 
+      const setupCont = document.querySelector('.setup');
+        if (setupCont) {
+          const cont = document.querySelector('main');
+          cont.removeChild(setupCont);
+        } 
+
      nav1.classList.remove('underline');
      nav2.classList.add('underline');
      nav3.classList.remove('underline');
@@ -132,6 +145,12 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
   nav3.addEventListener('click', (e)=> {
      e.preventDefault();
+
+      const setupCont = document.querySelector('.setup');
+        if (setupCont) {
+          const cont = document.querySelector('main');
+          cont.removeChild(setupCont);
+        } 
 
      nav1.classList.remove('underline'); 
      nav2.classList.remove('underline');
@@ -228,7 +247,7 @@ class Task {
 
   static counter = 0;
 
-  constructor(name = 'empty', description = 'empty', type, id = Date.now(), status = "in-progress", streak = 0) {
+  constructor(name = 'none', description = 'none', type, id = Date.now(), status = "in-progress", streak = 0) {
 
     this.checkList = document.querySelector('.check-list');
     this.statusList = document.querySelector('.status-list');
@@ -265,10 +284,14 @@ class Task {
     this.deleteIcon = document.createElementNS("http://www.w3.org/2000/svg",'svg');
     this.deleteIcon.classList.add('delete-icon');
     this.deleteIcon.setAttribute('fill', `${primaryColor}`);
-    this.deleteIcon.setAttribute('viewBox', "0 0 24 24");
-    this.deleteIcon.setAttribute('height', '20px');
-    this.deleteIcon.setAttribute('width', '20px');
-    this.deleteIcon.innerHTML = `<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12l1.41 1.41L13.41 14l2.12 2.12l-1.41 1.41L12 15.41l-2.12 2.12l-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/>`; 
+    this.deleteIcon.setAttribute('viewBox', "0 0 19 25");
+    this.deleteIcon.setAttribute('height', '25px');
+    this.deleteIcon.setAttribute('width', '25px');
+    this.deleteIconPath = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+    this.deleteIconPath.setAttribute('height', '30px');
+    this.deleteIconPath.setAttribute('width', '30px');
+    this.deleteIconPath.setAttribute('d', "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12l1.41 1.41L13.41 14l2.12 2.12l-1.41 1.41L12 15.41l-2.12 2.12l-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z");
+    this.deleteIcon.appendChild(this.deleteIconPath);
 
     this.init();
     this.addTask();
@@ -278,6 +301,9 @@ class Task {
   init() {
 
     this.deleteIcon.addEventListener('click', ()=> {
+      if(this.name === 'note') {
+        this.uSureOption(this.notesList);
+      } else {
       switch(this.type) {
         case 'check':
           this.uSureOption(this.checkList);
@@ -285,10 +311,9 @@ class Task {
         case 'status':
           this.uSureOption(this.statusList);
           break;
-        case 'note':
-          this.uSureOption(this.notesList);
-          break;
+        };
       }
+      
        
     })
     this.checkbox.addEventListener('change', ()=> {

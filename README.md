@@ -8,6 +8,12 @@ Personal project focusing on classes and heavy javascript interactions.
 - Color-coded UI (custom palette)
 
 ## Version
+**v2.3 - 04.09.2025**
+- Fixed svg viewbox
+- Setup / delete windows now disappear when changing sections
+- Fixed delete button not working for notes
+- Added a filter button (not working ofc)
+
 **v2.2 - 04.09.2025**
 - Added a status toggle for the long-term tasks after clicking the current status.
 
@@ -44,7 +50,7 @@ Personal project focusing on classes and heavy javascript interactions.
 - ❌ Review scaling on smaller devices / add media queries.
 - ❌ Add proper filtering.
 - ❌ Add more task input parameters.
-
+- ❌ Fix tasks/notes not saving their edited values
 
 ## Installation
 Clone the repo:
