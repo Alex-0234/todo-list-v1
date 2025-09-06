@@ -8,6 +8,14 @@ Personal project focusing on classes and heavy javascript interactions.
 - Color-coded UI (custom palette)
 
 ## Version
+**v2.4 - 07.09.2025**
+- Big changes to the javascript file
+- Added a task manager to manage my Arrays
+- Descriptions now save after changing
+- Removed name inputs
+- Removed delete window on tasks so its instant. Will add back
+
+
 **v2.3 - 04.09.2025**
 - Fixed svg viewbox
 - Setup / delete windows now disappear when changing sections
@@ -50,7 +58,7 @@ Personal project focusing on classes and heavy javascript interactions.
 - ❌ Review scaling on smaller devices / add media queries.
 - ❌ Add proper filtering.
 - ❌ Add more task input parameters.
-- ❌ Fix tasks/notes not saving their edited values
+- ✅ Fix tasks/notes not saving their edited values
 
 ## Installation
 Clone the repo:

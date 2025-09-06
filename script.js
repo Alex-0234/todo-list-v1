@@ -1,51 +1,15 @@
-let dailyTasks = [];
-let statusTasks = [];
-let allNotes = [];
 
 let primaryColor = null;
 let secondaryColor = null;
 let bgColor = null;
 let textColor = null;
 
-function loadAll() {
-  const ONE_DAY = 24*60*60*1000;
-
-    const dailyRaw = JSON.parse(localStorage.getItem("dailyTasks") || "[]");
-    dailyTasks = dailyRaw.map(obj => new Task(
-      obj.name,
-      obj.description,
-      obj.type,
-      obj.id,
-      obj.status,
-      obj.streak
-    ));
-    dailyTasks.forEach(obj => {
-      if (Date.now() - obj.id > ONE_DAY && this.status === "completed") {
-        obj.status = "in-progress";
-        obj.streak++;
-    }
-    });
-    const statusRaw = JSON.parse(localStorage.getItem("statusTasks") || "[]");
-    statusTasks = statusRaw.map(obj => new Task(
-      obj.name,
-      obj.description,
-      obj.type,
-      obj.id,
-      obj.status
-    ));
-    const notesRaw = JSON.parse(localStorage.getItem("Notes") || "[]");
-    allNotes = notesRaw.map(obj => new Task(
-      obj.name,
-      obj.description,
-      obj.type,
-      obj.id,
-      obj.status
-    ));
-}
-
 document.addEventListener('DOMContentLoaded', ()=> {
   console.log('Inicialized');
   history.replaceState(null, '', 'index.html');
+
+  const taskManager = new TaskManager();
+  taskManager.loadFromLocalStorage();
 
   bgColor = getComputedStyle(document.body).getPropertyValue("--bg-color");
   textColor = getComputedStyle(document.body).getPropertyValue("--text-color");
@@ -64,15 +28,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const addButtonStatus = document.querySelector('.add-button-status');
   const addButtonNotes = document.querySelector('.add-button-notes');
 
-  loadAll();
-
   addButtonCheck.addEventListener('click', ()=> {
     const setupCont = document.querySelector('.setup');
     if (setupCont) {
       const cont = document.querySelector('main');
       cont.removeChild(setupCont);
     } 
-    const setup = new Setup('check'); 
+    const setup = new Setup('check', taskManager); 
   })
   addButtonStatus.addEventListener('click', ()=> {
     const setupCont = document.querySelector('.setup');
@@ -80,7 +42,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       const cont = document.querySelector('main');
       cont.removeChild(setupCont);
     }
-    const setup = new Setup('status'); 
+    const setup = new Setup('status', taskManager); 
   })
   addButtonNotes.addEventListener('click', ()=> {
     const setupCont = document.querySelector('.setup');
@@ -88,7 +50,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       const cont = document.querySelector('main');
       cont.removeChild(setupCont);
     }
-    const task = new Task('note');
+    const setup = new Setup('note', taskManager);
   })
 
   nav1.addEventListener('click', (e)=> {
@@ -171,296 +133,364 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
 })
 class Setup {
-  constructor(type) {
+  constructor(type, manager) {
     this.type = type;
-    this.container = document.querySelector('main');
-  
-    this.setupWindow = document.createElement('div');
-    this.setupWindow.classList.add('setup');
+    this.manager = manager;
+    this.main = document.querySelector('main');
 
-    this.textareaWrapper = document.createElement('div');
-    this.textareaWrapper.classList.add('setup-textarea');
-    this.textareaLabel = document.createElement('label');
-    this.textareaLabel.innerHTML = "Describe your task:";
-    this.textarea = document.createElement('textarea');
-    this.textarea.classList.add('description');
+    this.container = document.createElement('div');
+    this.container.classList.add('setup');
 
-    this.nameInputWrapper = document.createElement('div');
-    this.nameInputWrapper.classList.add('name-input-wrapper');
-    this.nameLabel = document.createElement('label');
-    this.nameLabel.innerHTML = "Name your task:";
-    this.nameInput = document.createElement('input');
-    this.nameInput.setAttribute('type', 'text');
-    this.nameInput.classList.add('task-name');
+    this.createElements();
+    this.closeIcon.appendChild(this.path);
+    this.container.appendChild(this.closeIcon);
 
-    this.addButtonArea = document.createElement('div');
-    this.addButtonArea.classList.add('add-button-area');
+    if (type === 'check') this.addDailyTask();
+    else if (type === 'status') this.addStatusTask();
+    else this.addNote();
 
+    this.container.appendChild(this.button);
+    this.main.appendChild(this.container);
+    this.init();
+  }
+
+  createElements() {
     this.button = document.createElement('button');
     this.button.classList.add('add-button');
-    this.button.textContent = 'Add Task';
 
-    this.closeIcon = document.createElementNS("http://www.w3.org/2000/svg", 'svg');
+    this.closeIcon = document.createElementNS("http://www.w3.org/2000/svg",'svg');
     this.closeIcon.classList.add('close-setup');
-    this.closeIcon.setAttribute('fill', `${primaryColor}`);
     this.closeIcon.setAttribute('height', '30px');
     this.closeIcon.setAttribute('width', '30px');
-    this.closeIcon.setAttribute('viewBox', '16 16 518 1020');
-    
-    this.path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
-    this.path.setAttribute('d', 'M400 145.49L366.51 112L256 222.51L145.49 112L112 145.49L222.51 256L112 366.51L145.49 400L256 289.49L366.51 400L400 366.51L289.49 256L400 145.49z')
-    this.path.setAttribute('fill', `${primaryColor}`);
+    this.closeIcon.setAttribute('viewBox', "16 16 518 1020");
 
-    this.init();
-    this.appendAll();
+    this.path = document.createElementNS("http://www.w3.org/2000/svg",'path');
+    this.path.setAttribute('d', "M400 145.49L366.51 112L256 222.51L145.49 112L112 145.49L222.51 256L112 366.51L145.49 400L256 289.49L366.51 400L400 366.51L289.49 256L400 145.49z");
+
+    this.textAreaWrapper = document.createElement('div');
+    this.textAreaWrapper.classList.add('setup-textarea');
+    this.textArea = document.createElement('textarea');
+    this.textArea.classList.add('description');
+
+    //this.nameInputWrapper = document.createElement('div');
+    //this.nameInputWrapper.classList.add('name-input-wrapper');
+    //this.nameInput = document.createElement('input');
+    //this.nameInput.classList.add('name-input');
+
+    this.textAreaWrapper.appendChild(this.textArea);
   }
-    init() {
-      this.closeIcon.addEventListener('click', ()=> {
-        this.container.removeChild(this.setupWindow);
-      });
-      this.button.addEventListener('click', ()=> {
-        if (this.type === 'check') {
-          const task = new Task(this.nameInput.value, this.textarea.value, 'check');
-        } else if (this.type === 'status') {
-          const task = new Task(this.nameInput.value, this.textarea.value, 'status');
-        } 
-        this.nameInput.value = "";
-        this.textarea.value = "";
-      })
-    }
-    appendAll() {
-        this.textareaWrapper.appendChild(this.textareaLabel);
-        this.textareaWrapper.appendChild(this.textarea);
-        this.nameInputWrapper.appendChild(this.nameLabel);
-        this.nameInputWrapper.appendChild(this.nameInput);
-        this.addButtonArea.appendChild(this.button);
-        this.setupWindow.appendChild(this.nameInputWrapper);
-        this.setupWindow.appendChild(this.textareaWrapper);
-        this.setupWindow.appendChild(this.addButtonArea);
-        this.closeIcon.appendChild(this.path);
-        this.setupWindow.appendChild(this.closeIcon); 
-        this.container.appendChild(this.setupWindow);  
-    }
-};
 
-class Task {
+  init() {
+    this.closeIcon.addEventListener('click', ()=> {
+      this.main.removeChild(this.container);
+    })
+    this.button.addEventListener('click', ()=> {
+      if (this.type === 'check') new dailyTask(this.textArea.value, undefined, "in-progress", 0, this.manager);
+      else if (this.type === 'status') new statusTask(this.textArea.value, 'in-progress', undefined, this.manager);
+      else new Note(this.textArea.value, undefined, this.manager);
 
-  static counter = 0;
+      this.textArea.value = "";
+    });
+  }
 
-  constructor(name = 'none', description = 'none', type, id = Date.now(), status = "in-progress", streak = 0) {
+  addDailyTask() {
+    const h3 = document.createElement('h3');
+    h3.textContent = "Adding a daily task";
+    this.container.appendChild(h3);
+    //this.container.appendChild(this.nameInputWrapper);
+    this.container.appendChild(this.textAreaWrapper);
+  }
 
-    this.checkList = document.querySelector('.check-list');
-    this.statusList = document.querySelector('.status-list');
-    this.notesList = document.querySelector('.notes-list');
+  addStatusTask() {
+    const h3 = document.createElement('h3');
+    h3.textContent = "Adding a status task";
+    this.container.appendChild(h3);
+    this.container.appendChild(this.textAreaWrapper);
+  }
 
+  addNote() {
+    const h3 = document.createElement('h3');
+    h3.textContent = "Adding a note";
+    this.container.appendChild(h3);
+    this.container.appendChild(this.textAreaWrapper);
+  }
+}
+
+class TaskManager {
+  constructor() {
+    this.dailyList = [];
+    this.statusList = [];
+    this.notesList = [];
+
+    console.log(this.notesList);
+    console.log(this.statusList);
+    console.log(this.dailyList);
+  }
+
+  dailyTask(task) {
+    this.dailyList.push(task);
+    this.storeToLocalStorage('dailyList');
+  }
+
+  statusTask(task) {
+    this.statusList.push(task);
+    this.storeToLocalStorage('statusList');
+  }
+
+  note(task) {
+    this.notesList.push(task);
+    this.storeToLocalStorage('notesList');
+  }
+
+  storeToLocalStorage(listName) {
+    localStorage.setItem(listName, JSON.stringify(this[listName]));
+  }
+
+  loadFromLocalStorage() {
+    const savedDaily = JSON.parse(localStorage.getItem('dailyList') || "[]");
+    const savedStatus = JSON.parse(localStorage.getItem('statusList') || "[]");
+    const savedNotes = JSON.parse(localStorage.getItem('notesList') || "[]");
+
+    savedDaily.forEach(obj => new dailyTask(obj.description, obj.id, obj.status, obj.streak, this));
+    savedStatus.forEach(obj => new statusTask(obj.description, obj.status, obj.id, this));
+    savedNotes.forEach(obj => new Note(obj.description, obj.id, this));
+  }
+}
+
+class dailyTask {
+  constructor(description='none', id=Date.now(), status="in-progress", streak=0, manager) {
+    this.manager = manager;
     this.id = id;
-    this.name = name;
     this.description = description;
-    this.type = type;
     this.status = status;
     this.streak = streak;
 
+    this.checkList = document.querySelector('.check-list');
+
     this.task = document.createElement('div');
-    this.task.classList.add('task');
+    this.task.classList.add('daily-task');
 
     this.checkbox = document.createElement('input');
     this.checkbox.type = 'checkbox';
-    this.checkbox.classList.add('checkbox');
- 
-    this.nameOutput = document.createElement('input');
-    this.nameOutput.classList.add('name-output')
-    this.nameOutput.setAttribute('readonly', '');
-    this.nameOutput.value = `${name}`;
+    this.checkbox.classList.add('checkbox')
 
     this.textarea = document.createElement('textarea');
     this.textarea.classList.add('textarea');
-    this.textarea.value = this.description;
-
-    this.progress = document.createElement('input');
-    this.progress.setAttribute('readonly', '');
-    this.progress.classList.add('status');
-    this.progress.value = `${this.status}`;
+    this.textarea.value = description;
 
     this.deleteIcon = document.createElementNS("http://www.w3.org/2000/svg",'svg');
     this.deleteIcon.classList.add('delete-icon');
-    this.deleteIcon.setAttribute('fill', `${primaryColor}`);
+    this.deleteIcon.setAttribute('fill', primaryColor);
     this.deleteIcon.setAttribute('viewBox', "0 0 19 25");
     this.deleteIcon.setAttribute('height', '25px');
     this.deleteIcon.setAttribute('width', '25px');
-    this.deleteIconPath = document.createElementNS("http://www.w3.org/2000/svg", 'path');
-    this.deleteIconPath.setAttribute('height', '30px');
-    this.deleteIconPath.setAttribute('width', '30px');
-    this.deleteIconPath.setAttribute('d', "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12l1.41 1.41L13.41 14l2.12 2.12l-1.41 1.41L12 15.41l-2.12 2.12l-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z");
-    this.deleteIcon.appendChild(this.deleteIconPath);
+    const path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+    path.setAttribute('d', "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12l1.41 1.41L13.41 14l2.12 2.12l-1.41 1.41L12 15.41l-2.12 2.12l-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z");
+    this.deleteIcon.appendChild(path);
 
+    this.addToManager();
+    this.render();
     this.init();
-    this.addTask();
   }
-   // ======================================================
+
+  toJSON() {
+    return {id:this.id,description:this.description,status:this.status,streak:this.streak};
+  }
+
+  addToManager() {
+    if(this.manager) this.manager.dailyTask(this.toJSON());
+  }
+
+  render() {
+    this.task.appendChild(this.checkbox);
+    this.task.appendChild(document.createTextNode(`${this.streak}`));
+    this.task.appendChild(this.textarea);
+    this.task.appendChild(this.deleteIcon);
+    this.checkList.appendChild(this.task);
+    this.checkbox.checked = this.status === "completed";
+    this.task.classList.toggle('completed', this.status === "completed");
+  }
 
   init() {
+    this.checkbox.addEventListener('change', ()=> {
+      this.status = this.checkbox.checked ? "completed" : "in-progress";
+
+      this.task.classList.toggle('completed', this.checkbox.checked);
+      if(this.manager) {
+        const idx = this.manager.dailyList.findIndex(t=>t.id===this.id);
+        if(idx!==-1) this.manager.dailyList[idx].status = this.status;
+        this.manager.storeToLocalStorage('dailyList');
+      }
+    });
+
+    this.textarea.addEventListener('change', () => {
+    this.description = this.textarea.value;
+    if(this.manager) {
+        const idx = this.manager.dailyList.findIndex(t => t.id === this.id);
+        if(idx !== -1) this.manager.dailyList[idx].description = this.description;
+        this.manager.storeToLocalStorage('dailyList');
+    }
+});
 
     this.deleteIcon.addEventListener('click', ()=> {
-      if(this.name === 'note') {
-        this.uSureOption(this.notesList);
-      } else {
-      switch(this.type) {
-        case 'check':
-          this.uSureOption(this.checkList);
-          break;
-        case 'status':
-          this.uSureOption(this.statusList);
-          break;
-        };
+      this.checkList.removeChild(this.task);
+      if(this.manager) {
+        this.manager.dailyList = this.manager.dailyList.filter(t=>t.id!==this.id);
+        this.manager.storeToLocalStorage('dailyList');
       }
-      
-       
-    })
-    this.checkbox.addEventListener('change', ()=> {
-      this.toggleCompleted();
-    })
-    this.progress.addEventListener('click', (e)=> {
-      e.preventDefault();
-      const toggle = new progressWindow(this.task);
-    })
-
-  }
-   // ======================================================
-    toJSON() {
-      return {
-        id: this.id,
-        name: this.name,
-        description: this.description,
-        status: this.status,
-        type: this.type,
-        streak: this.streak
-      };
-    }
-  // ======================================================
-   addCheckboxType() {
-    
-      this.task.appendChild(this.checkbox);
-      this.task.appendChild(this.nameOutput);
-      this.task.appendChild(document.createTextNode(`${this.streak}`));
-      this.task.appendChild(this.textarea);
-      this.task.appendChild(this.deleteIcon);
-      this.checkList.appendChild(this.task);
-
-      if (this.status === "completed") {
-        this.checkbox.checked = true; 
-      } else {
-        this.checkbox.checked = false; 
-}
-
-      dailyTasks.push(this.toJSON());
-      localStorage.setItem("dailyTasks", JSON.stringify(dailyTasks));
-   }
-   // ======================================================
-     addStatusType() {
-      this.task.appendChild(this.progress);
-      this.task.appendChild(this.textarea);
-      this.task.appendChild(this.deleteIcon);
-      this.statusList.appendChild(this.task);
-
-      statusTasks.push(this.toJSON());
-      localStorage.setItem("statusTasks", JSON.stringify(statusTasks));
-   }
-   // ======================================================
-    addNotes() {
-      this.task.appendChild(this.textarea);
-      this.task.appendChild(this.deleteIcon);
-      this.notesList.appendChild(this.task);
-
-      allNotes.push(this.toJSON());
-      localStorage.setItem("Notes", JSON.stringify(allNotes));
-
-    }
-  // ======================================================
-  addTask() {
-    if (this.type === "check") {
-      this.addCheckboxType();
-    
-    } else if (this.type === "status") {
-      this.addStatusType();
-
-    } else {
-      this.addNotes();
-    }
-    
-  }
-  // ======================================================
-  uSureOption(parent) {
-    
-    this.window = document.createElement('div');
-    this.window.classList.add('del-option');
-
-    this.p = document.createElement('p');
-    this.p.innerHTML = "Are you sure?";
-    this.sure = document.createElement('button');
-    this.sure.classList.add('choice');
-    this.sure.innerHTML = "Sure";
-
-    this.unsure = document.createElement('button');
-    this.unsure.classList.add('choice');
-    this.unsure.innerHTML = "Not sure";
-
-    this.window.appendChild(this.p);
-    this.window.appendChild(this.sure);
-    this.window.appendChild(this.unsure);
-    this.task.appendChild(this.window);
-
-    this.sure.addEventListener('click', ()=> {
-      this.task.removeChild(this.window);
-      this.removeTask(parent);
-      
-    })
-    this.unsure.addEventListener('click', ()=> {
-      this.task.removeChild(this.window);
-    })
-  }
-   // ======================================================
-  removeTask(parent) {
-  parent.removeChild(this.task);
-
-  if (parent === this.checkList) {
-    dailyTasks = dailyTasks.filter(task => task.id !== this.id);
-    localStorage.setItem("dailyTasks", JSON.stringify(dailyTasks));
-  }
-  else if (parent === this.statusList) {
-    statusTasks = statusTasks.filter(task => task.id !== this.id);
-    localStorage.setItem("statusTasks", JSON.stringify(statusTasks));
-  }
-  else {
-    allNotes = allNotes.filter(task => task.id !== this.id);
-    localStorage.setItem("Notes", JSON.stringify(allNotes));
-  }
-
-  }
-  
-   // ======================================================
-  toggleCompleted() {
-    this.task.classList.toggle('completed');
-    this.status = this.task.classList.contains('completed') 
-    ? "completed" 
-    : "in-progress";
-    dailyTasks = dailyTasks.map(task => 
-      task.id === this.id ? this.toJSON() : task
-    );
-    localStorage.setItem("dailyTasks", JSON.stringify(dailyTasks));
+    });
   }
 }
-class progressWindow {
-  constructor(task) {
-    this.container = task;
-    this.toggle(this.container);
 
+class statusTask {
+  constructor(description='none', status='in-progress', id=Date.now(), manager) {
+    this.manager = manager;
+    this.id = id;
+    this.description = description;
+    this.status = status;
+
+    this.statusList = document.querySelector('.status-list');
+
+    this.task = document.createElement('div');
+    this.task.classList.add('status-task');
+
+    this.progress = document.createElement('input');
+    this.progress.setAttribute('readonly','');
+    this.progress.classList.add('status');
+    this.progress.value = status;
+
+    this.textarea = document.createElement('textarea');
+    this.textarea.classList.add('textarea');
+    this.textarea.value = description;
+
+    this.deleteIcon = document.createElementNS("http://www.w3.org/2000/svg",'svg');
+    this.deleteIcon.classList.add('delete-icon');
+    this.deleteIcon.setAttribute('fill', primaryColor);
+    this.deleteIcon.setAttribute('viewBox', "0 0 19 25");
+    this.deleteIcon.setAttribute('height', '25px');
+    this.deleteIcon.setAttribute('width', '25px');
+    const path = document.createElementNS("http://www.w3.org/2000/svg",'path');
+    path.setAttribute('d', "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12l1.41 1.41L13.41 14l2.12 2.12l-1.41 1.41L12 15.41l-2.12 2.12l-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z");
+    this.deleteIcon.appendChild(path);
+
+    this.addToManager();
+    this.render();
+    this.init();
   }
-  toggle() {
-  const statuses = ['finished', 'in-progress', 'on-hold', 'review' ];
 
-  const currentIndex = statuses.indexOf(this.container.status);
-  const nextIndex = (currentIndex + 1) % statuses.length; // loops back to start
-  this.container.status = statuses[nextIndex];
-  this.container.querySelector('.status').value = `${this.container.status}`;
+  toJSON() {
+    return {id:this.id,description:this.description,status:this.status};
+  }
+
+  addToManager() {
+    if(this.manager) { 
+      this.manager.statusTask(this.toJSON())};
+  }
+
+  render() {
+    this.task.appendChild(this.progress);
+    this.task.appendChild(this.textarea);
+    this.task.appendChild(this.deleteIcon);
+    this.statusList.appendChild(this.task);
+  }
+
+  init() {
+    this.textarea.addEventListener('change', () => {
+    this.description = this.textarea.value;
+    if(this.manager) {
+        const idx = this.manager.statusList.findIndex(t => t.id === this.id);
+        if(idx !== -1) this.manager.statusList[idx].description = this.description;
+        this.manager.storeToLocalStorage('statusList');
+    }
+    });
+    this.deleteIcon.addEventListener('click', ()=>{
+      this.statusList.removeChild(this.task);
+      if(this.manager) {
+        this.manager.statusList = this.manager.statusList.filter(t=>t.id!==this.id);
+        this.manager.storeToLocalStorage('statusList');
+      }
+    });
+
+    this.progress.addEventListener('click', ()=>{
+      const statuses = ['finished', 'in-progress', 'on-hold', 'review'];
+      const currentIndex = statuses.indexOf(this.status);
+      const nextIndex = (currentIndex + 1) % statuses.length;
+      this.status = statuses[nextIndex];
+      this.progress.value = this.status;
+      if(this.manager) {
+        const idx = this.manager.statusList.findIndex(t=>t.id===this.id);
+        if(idx!==-1) this.manager.statusList[idx].status = this.status;
+        this.manager.storeToLocalStorage('statusList');
+      }
+    });
+
+    this.textarea.addEventListener('change', ()=>{ this.description = this.textarea.value; });
+  }
 }
+
+class Note {
+  constructor(description='none', id=Date.now(), manager) {
+    this.manager = manager;
+    this.id = id;
+    this.description = description;
+
+    this.notesList = document.querySelector('.notes-list');
+    this.task = document.createElement('div');
+    this.task.classList.add('note');
+
+    this.textarea = document.createElement('textarea');
+    this.textarea.classList.add('textarea');
+    this.textarea.value = description;
+
+    this.deleteIcon = document.createElementNS("http://www.w3.org/2000/svg",'svg');
+    this.deleteIcon.classList.add('delete-icon');
+    this.deleteIcon.setAttribute('fill', primaryColor);
+    this.deleteIcon.setAttribute('viewBox', "0 0 19 25");
+    this.deleteIcon.setAttribute('height', '25px');
+    this.deleteIcon.setAttribute('width', '25px');
+    const path = document.createElementNS("http://www.w3.org/2000/svg",'path');
+    path.setAttribute('d', "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12l1.41 1.41L13.41 14l2.12 2.12l-1.41 1.41L12 15.41l-2.12 2.12l-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z");
+    this.deleteIcon.appendChild(path);
+
+    this.addToManager();
+    this.render();
+    this.init();
+  }
+
+  toJSON() {
+    return {id:this.id,description:this.description};
+  }
+
+  addToManager() {
+    if(this.manager) this.manager.note(this.toJSON());
+  }
+
+  render() {
+    this.task.appendChild(this.textarea);
+    this.task.appendChild(this.deleteIcon);
+    this.notesList.appendChild(this.task);
+  }
+
+  init() {
+    this.textarea.addEventListener('change', () => {
+    this.description = this.textarea.value;
+    if(this.manager) {
+        const idx = this.manager.notesList.findIndex(t => t.id === this.id);
+        if(idx !== -1) this.manager.notesList[idx].description = this.description;
+        this.manager.storeToLocalStorage('notesList');
+    }
+    });
+    this.deleteIcon.addEventListener('click', ()=>{
+      this.notesList.removeChild(this.task);
+      if(this.manager) {
+        this.manager.notesList = this.manager.notesList.filter(t=>t.id!==this.id);
+        this.manager.storeToLocalStorage('notesList');
+      }
+    });
+
+    this.textarea.addEventListener('change', ()=>{ 
+      this.description = this.textarea.value;
+      addToManager()
+     });
+  }
 }

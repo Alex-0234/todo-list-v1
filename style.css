@@ -102,6 +102,11 @@ nav {
     top: 1rem;
     right: 1rem;
     cursor: pointer;
+
+    
+}
+.close-setup path {
+    fill: var(--text-color);
 }
 .name-input-wrapper {
     margin-top: 3rem;
@@ -164,12 +169,6 @@ nav {
     background-color: var(--bg-color);
 }
 .check-list {
-    height: 100%;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(auto-fit, minmax(4.2rem, 1fr));
-
     overflow-y: auto;
 
     background-color: rgba(0,0,0,0);
@@ -185,13 +184,13 @@ nav {
     border-radius: 0.4rem;
     background-color: var(--secondary-color);
 }
+.notes-list {
 
+    overflow-y: auto;
+
+    background-color: rgba(0,0,0,0);
+}
 .status-list {
-    height: 100%;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(auto-fit, minmax(4.2rem, 1fr));
 
     overflow-y: auto;
 
@@ -209,7 +208,7 @@ nav {
     background-color: var(--secondary-color);
 }
 
-.task {
+.daily-task {
     height: 4rem;
     width: 100%;
     margin-top:0.1rem;
@@ -221,6 +220,31 @@ nav {
 
     background-color: var(--secondary-color);
 }
+.status-task {
+    height: 4rem;
+    width: 100%;
+    margin-top:0.1rem;
+    margin-bottom: 0.1rem;
+    border-radius: 0.4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background-color: var(--secondary-color);
+}
+.note {
+    height: 6rem;
+    width: 100%;
+    margin-top:0.1rem;
+    margin-bottom: 0.1rem;
+    border-radius: 0.4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background-color: var(--secondary-color);
+}
+
 .name-output {
     height: auto;
     max-width: 5rem;
@@ -259,6 +283,7 @@ nav {
     padding: 1vh;
 
     cursor: pointer;
+    fill: var(--primary-color);
 }
 
 .del-option {
@@ -364,7 +389,9 @@ h2 {
     flex-wrap: wrap;
 }
 .hidden {
-    visibility: hidden;
+    transform: translateX(-200px);
+    opacity: 0;
+    pointer-events: none;
 }
 .underline {
     text-decoration: underline;
