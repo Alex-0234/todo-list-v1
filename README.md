@@ -5,9 +5,13 @@ Personal project focusing on classes and heavy javascript interactions.
 ## Features
 - Add, remove, and filter tasks
 - Different task types: check/daily, long-term/status, notes
-- Color-coded UI (custom palette)
+
 
 ## Version
+
+**v2.5 - 07.09.2025**
+- Added filtering...
+
 **v2.4 - 07.09.2025**
 - Big changes to the javascript file
 - Added a task manager to manage my Arrays
@@ -54,11 +58,13 @@ Personal project focusing on classes and heavy javascript interactions.
 - ✅ Add note add function.
 - ✅ ID changes.
 - ✅ Add status change toggle after clicking the current status.
+- ✅ Add proper filtering.
+- ✅ Fix tasks/notes not saving their edited values.
+
+## Scrapped planned features
 - ❌ Redesign task setup window.
 - ❌ Review scaling on smaller devices / add media queries.
-- ❌ Add proper filtering.
 - ❌ Add more task input parameters.
-- ✅ Fix tasks/notes not saving their edited values
 
 ## Installation
 Clone the repo:

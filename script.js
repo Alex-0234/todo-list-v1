@@ -7,7 +7,7 @@ let textColor = null;
 document.addEventListener('DOMContentLoaded', ()=> {
   console.log('Inicialized');
   history.replaceState(null, '', 'index.html');
-
+  
   const taskManager = new TaskManager();
   taskManager.loadFromLocalStorage();
 
@@ -27,6 +27,70 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const addButtonCheck = document.querySelector('.add-button-check');
   const addButtonStatus = document.querySelector('.add-button-status');
   const addButtonNotes = document.querySelector('.add-button-notes');
+  
+  const filterContainer = document.querySelector('.filter-by');
+  const addCheckFilter = document.querySelector('.add-check-filter');
+  const addStatusFiler = document.querySelector('.add-status-filter');
+      const all = document.querySelector('.all');
+      const completed = document.querySelector('.comp');
+      const inProgress = document.querySelector('.inprog');
+      const onHold = document.querySelector('.onhold');
+      const review = document.querySelector('.review');
+
+  // ------------ filter by ------------- //
+
+    all.addEventListener('click', () => {
+      if (statusBased.classList.contains('onscreen-center')) {
+        taskManager.loadFilteredStatus('all');
+      } else {
+          taskManager.loadFilteredDaily('all');
+      }
+    });
+    completed.addEventListener('click', () => {
+      if (statusBased.classList.contains('onscreen-center')) {
+        taskManager.loadFilteredStatus('completed');
+      } else {
+          taskManager.loadFilteredDaily('completed');
+      }
+    });
+    inProgress.addEventListener('click', () => {
+      if (statusBased.classList.contains('onscreen-center')) {
+        taskManager.loadFilteredStatus('in-progress');
+      } else {
+          taskManager.loadFilteredDaily('in-progress');
+      }
+    });
+    onHold.addEventListener('click', () => {
+      if (statusBased.classList.contains('onscreen-center')) {
+        taskManager.loadFilteredStatus('on-hold');
+      } else {
+          taskManager.loadFilteredDaily('on-hold');
+      }
+    });
+    review.addEventListener('click', () => {
+      if (statusBased.classList.contains('onscreen-center')) {
+        taskManager.loadFilteredStatus('review');
+      } else {
+          taskManager.loadFilteredDaily('review');
+      }
+    });
+
+  // ------------ Filter button ------------- //
+
+  addCheckFilter.addEventListener('click', ()=> {
+    filterContainer.classList.toggle('hidden');
+    onHold.classList.add('hidden');
+    review.classList.add('hidden');
+  });
+
+  addStatusFiler.addEventListener('click', ()=> {
+    filterContainer.classList.toggle('hidden');
+    onHold.classList.remove('hidden');
+    review.classList.remove('hidden');
+
+  });
+
+  // ------------ Add buttons ------------- //
 
   addButtonCheck.addEventListener('click', ()=> {
     const setupCont = document.querySelector('.setup');
@@ -35,7 +99,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
       cont.removeChild(setupCont);
     } 
     const setup = new Setup('check', taskManager); 
-  })
+  });
   addButtonStatus.addEventListener('click', ()=> {
     const setupCont = document.querySelector('.setup');
     if (setupCont) {
@@ -53,14 +117,20 @@ document.addEventListener('DOMContentLoaded', ()=> {
     const setup = new Setup('note', taskManager);
   })
 
+  // ------------ Nav buttons ------------- //
+
   nav1.addEventListener('click', (e)=> {
      e.preventDefault();
+     const filterContainer = document.querySelector('.filter-by');
 
         const setupCont = document.querySelector('.setup');
         if (setupCont) {
           const cont = document.querySelector('main');
           cont.removeChild(setupCont);
         } 
+        if (!filterContainer.classList.contains('hidden')) {
+          filterContainer.classList.add('hidden');
+        }
 
      nav1.classList.add('underline');
      nav2.classList.remove('underline');
@@ -81,12 +151,16 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
   nav2.addEventListener('click', (e)=> {
      e.preventDefault();
+     const filterContainer = document.querySelector('.filter-by');
 
       const setupCont = document.querySelector('.setup');
         if (setupCont) {
           const cont = document.querySelector('main');
           cont.removeChild(setupCont);
         } 
+        if (!filterContainer.classList.contains('hidden')) {
+          filterContainer.classList.add('hidden');
+        }
 
      nav1.classList.remove('underline');
      nav2.classList.add('underline');
@@ -107,12 +181,16 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
   nav3.addEventListener('click', (e)=> {
      e.preventDefault();
+     const filterContainer = document.querySelector('.filter-by');
 
       const setupCont = document.querySelector('.setup');
         if (setupCont) {
           const cont = document.querySelector('main');
           cont.removeChild(setupCont);
-        } 
+        }
+        if (!filterContainer.classList.contains('hidden')) {
+          filterContainer.classList.add('hidden');
+        }
 
      nav1.classList.remove('underline'); 
      nav2.classList.remove('underline');
@@ -172,11 +250,6 @@ class Setup {
     this.textArea = document.createElement('textarea');
     this.textArea.classList.add('description');
 
-    //this.nameInputWrapper = document.createElement('div');
-    //this.nameInputWrapper.classList.add('name-input-wrapper');
-    //this.nameInput = document.createElement('input');
-    //this.nameInput.classList.add('name-input');
-
     this.textAreaWrapper.appendChild(this.textArea);
   }
 
@@ -197,7 +270,6 @@ class Setup {
     const h3 = document.createElement('h3');
     h3.textContent = "Adding a daily task";
     this.container.appendChild(h3);
-    //this.container.appendChild(this.nameInputWrapper);
     this.container.appendChild(this.textAreaWrapper);
   }
 
@@ -251,14 +323,52 @@ class TaskManager {
     const savedStatus = JSON.parse(localStorage.getItem('statusList') || "[]");
     const savedNotes = JSON.parse(localStorage.getItem('notesList') || "[]");
 
-    savedDaily.forEach(obj => new dailyTask(obj.description, obj.id, obj.status, obj.streak, this));
-    savedStatus.forEach(obj => new statusTask(obj.description, obj.status, obj.id, this));
-    savedNotes.forEach(obj => new Note(obj.description, obj.id, this));
+    savedDaily.forEach(obj => new dailyTask(obj.description, obj.id, obj.status, obj.streak, this, true));
+    savedStatus.forEach(obj => new statusTask(obj.description, obj.status, obj.id, this, true));
+    savedNotes.forEach(obj => new Note(obj.description, obj.id, this, true));
+  }
+
+  loadFilteredDaily(value) {
+    const checkList = document.querySelector('.check-list');
+    while (checkList.firstChild) {
+      checkList.removeChild(checkList.firstChild);
+    }
+
+    const savedDaily = JSON.parse(localStorage.getItem('dailyList') || "[]");
+    let toRender = [];
+
+    if (value === 'all') {
+      toRender = savedDaily;
+    } else {
+      toRender = savedDaily.filter(t => t.status === value);
+    }
+
+    toRender.forEach(task => new dailyTask(task.description, task.id, task.status, task.streak, this, true));
+    return toRender;
+  }
+
+  loadFilteredStatus(value) {
+    const statusList = document.querySelector('.status-list');
+    while (statusList.firstChild) {
+      statusList.removeChild(statusList.firstChild);
+    }
+
+    const savedStatus = JSON.parse(localStorage.getItem('statusList') || "[]");
+    let toRender = [];
+
+    if (value === 'all') {
+      toRender = savedStatus;
+    } else {
+      toRender = savedStatus.filter(t => t.status === value);
+    }
+
+    toRender.forEach(task => new statusTask(task.description, task.status, task.id, this, true));
+    return toRender;
   }
 }
 
 class dailyTask {
-  constructor(description='none', id=Date.now(), status="in-progress", streak=0, manager) {
+  constructor(description='none', id=Date.now(), status="in-progress", streak=0, manager, fromStorage=false) {
     this.manager = manager;
     this.id = id;
     this.description = description;
@@ -288,9 +398,9 @@ class dailyTask {
     path.setAttribute('d', "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12l1.41 1.41L13.41 14l2.12 2.12l-1.41 1.41L12 15.41l-2.12 2.12l-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z");
     this.deleteIcon.appendChild(path);
 
-    this.addToManager();
-    this.render();
-    this.init();
+     if (!fromStorage && manager) this.addToManager();
+      this.render();
+      this.init();
   }
 
   toJSON() {
@@ -300,7 +410,6 @@ class dailyTask {
   addToManager() {
     if(this.manager) this.manager.dailyTask(this.toJSON());
   }
-
   render() {
     this.task.appendChild(this.checkbox);
     this.task.appendChild(document.createTextNode(`${this.streak}`));
@@ -343,7 +452,7 @@ class dailyTask {
 }
 
 class statusTask {
-  constructor(description='none', status='in-progress', id=Date.now(), manager) {
+  constructor(description='none', status='in-progress', id=Date.now(), manager, fromStorage=false) {
     this.manager = manager;
     this.id = id;
     this.description = description;
@@ -373,9 +482,9 @@ class statusTask {
     path.setAttribute('d', "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12l1.41 1.41L13.41 14l2.12 2.12l-1.41 1.41L12 15.41l-2.12 2.12l-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z");
     this.deleteIcon.appendChild(path);
 
-    this.addToManager();
-    this.render();
-    this.init();
+     if (!fromStorage && manager) this.addToManager();
+      this.render();
+      this.init();
   }
 
   toJSON() {
@@ -412,7 +521,7 @@ class statusTask {
     });
 
     this.progress.addEventListener('click', ()=>{
-      const statuses = ['finished', 'in-progress', 'on-hold', 'review'];
+      const statuses = ['completed', 'in-progress', 'on-hold', 'review'];
       const currentIndex = statuses.indexOf(this.status);
       const nextIndex = (currentIndex + 1) % statuses.length;
       this.status = statuses[nextIndex];
@@ -429,7 +538,7 @@ class statusTask {
 }
 
 class Note {
-  constructor(description='none', id=Date.now(), manager) {
+  constructor(description='none', id=Date.now(), manager, fromStorage=false) {
     this.manager = manager;
     this.id = id;
     this.description = description;
@@ -451,11 +560,10 @@ class Note {
     const path = document.createElementNS("http://www.w3.org/2000/svg",'path');
     path.setAttribute('d', "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12l1.41 1.41L13.41 14l2.12 2.12l-1.41 1.41L12 15.41l-2.12 2.12l-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z");
     this.deleteIcon.appendChild(path);
-
-    this.addToManager();
-    this.render();
-    this.init();
-  }
+    if (!fromStorage && manager) this.addToManager();
+        this.render();
+        this.init();
+    }
 
   toJSON() {
     return {id:this.id,description:this.description};
@@ -487,10 +595,5 @@ class Note {
         this.manager.storeToLocalStorage('notesList');
       }
     });
-
-    this.textarea.addEventListener('change', ()=>{ 
-      this.description = this.textarea.value;
-      addToManager()
-     });
   }
 }

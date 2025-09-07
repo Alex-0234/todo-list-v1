@@ -70,6 +70,31 @@ nav {
     border-radius: 0.6rem;
     background-color: var(--secondary-color);
 }
+.filter-by {
+    position: absolute;
+    top: 25vh;
+    left: 30vw;
+
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+
+    height: 5vh;
+    width: 40vw;
+    border-radius: 0.4rem;
+
+    background-color: #232323;
+
+
+}
+.filter-btn {
+    height: auto;
+    width: auto;
+    margin: 0.5rem;
+
+    font-size: 1rem;
+    cursor: pointer;
+}
 .setup {
     position: absolute;
     left: -1%;
@@ -223,8 +248,8 @@ nav {
 .status-task {
     height: 4rem;
     width: 100%;
-    margin-top:0.1rem;
-    margin-bottom: 0.1rem;
+    margin-top:0.8rem;
+    margin-bottom: 0.8rem;
     border-radius: 0.4rem;
     display: flex;
     justify-content: space-between;
